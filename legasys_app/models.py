@@ -2,6 +2,7 @@ from datetime import date
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
+from django.utils import timezone
 from django.db.models import (
     IntegerField, CharField, DateField, CASCADE, OneToOneField, BooleanField, ForeignKey, FileField
 )
@@ -52,9 +53,6 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
     def _str_(self):
         return self.username
 
-    
-
-
 class Persona(BaseUser):
     per_cedula = IntegerField(verbose_name='Cédula', null=False)
     per_fecha_nacimiento = DateField(verbose_name='Fecha de nac.', null=False)
@@ -93,7 +91,7 @@ class DetalleSedeFilial(models.Model):
     sedefilial = ForeignKey(SedeFilial, on_delete=CASCADE, verbose_name='Sede Filial')
 
     def __str__(self):
-        return f"{self.sedefilial}"
+        return f"{self.sedefilial} {self.carrera}"
 
 class Alumno(models.Model):
     persona = OneToOneField(Persona, on_delete=CASCADE, verbose_name='Alumno/a')
@@ -121,25 +119,49 @@ class Funcionario(models.Model):
 
 
 class LegajoAlumno(models.Model):
+
+    #DOC_CHOICES = (('Copia', 'Copia'),
+                   #('Copia Autenticada', 'Copia Autenticada'),
+                   #('Original', 'Original')
+                    #)
+
+    alumno = OneToOneField(Alumno, on_delete=CASCADE, verbose_name='Alumno')
+
+    #leg_tipo = CharField(choices=DOC_CHOICES, verbose_name='Tipo de Documento', max_length=100)
+    #leg_ruta = CharField(max_length=500)
+    #leg_vencimiento = DateField(verbose_name='Vencimiento')
+
+    leg_fecha_registro = DateField(verbose_name='Fecha de registro', null=False)
+
+#El foreingkey va dentro de la tabla donde se guarda la lista
+class TipoDocumento(models.Model):
+
+    #legajo_alumno = ForeignKey(LegajoAlumno, on_delete=CASCADE)
+
+    doc_descripcion = CharField(max_length=100, verbose_name='Documento', null=False)
+    doc_vencimiento = BooleanField(default=False, verbose_name='Vencimiento', null=False)
+    doc_fecha_registro = DateField(default=date.today)
+    #doc_imagen = FileField(verbose_name='Imagen', null=True)
+
+    def __str__(self):
+        return f"{self.doc_descripcion}"
+
+class TipoDocumentoDetalle(models.Model):
     DOC_CHOICES = (('Copia', 'Copia'),
                    ('Copia Autenticada', 'Copia Autenticada'),
                    ('Original', 'Original')
                    )
-    alumno = OneToOneField(Alumno, on_delete=CASCADE, verbose_name='Alumno')
-    leg_tipo = CharField(choices=DOC_CHOICES, verbose_name='Tipo de Documento', max_length=100)
-    leg_ruta = CharField(max_length=500)
-    leg_vencimiento = DateField(verbose_name='Vencimiento')
-    leg_fecha_registro = DateField(verbose_name='Fecha de registro', null=False)
+    tipoDocumento = ForeignKey(TipoDocumento, on_delete=CASCADE)
+    legajoAlumno = ForeignKey(LegajoAlumno, on_delete=CASCADE)
+    tip_documento = CharField(choices=DOC_CHOICES, verbose_name='Tipo de Documento', max_length=100)
+    tip_vencimiento = DateField(verbose_name='Vencimiento', blank=True, null=True)
+    tip_imagen = FileField(verbose_name='Imagen', null=True)
 
-class TipoDocumento(models.Model):
-    legajo_alumno = ForeignKey(LegajoAlumno, on_delete=CASCADE)
-    doc_descripcion = CharField(max_length=100, verbose_name='Documento', null=False)
-    doc_vencimiento = BooleanField(default=False, verbose_name='Vencimiento', null=False)
-    doc_fecha_registro = DateField(default=date.today)
-    doc_imagen = FileField(verbose_name='Imagen', null=True)
-
-    def __str__(self):
-        return f"{self.doc_descripcion}"
+    #aqui se hace una validacion para que no guarde si una cedula esta vencida
+    def save(self, *arg, **kwargs):
+        if self.tip_vencimiento > timezone.now().date():
+            return
+        super().save(self, *arg, **kwargs)
 
 class Profesor(models.Model):
     persona = OneToOneField(Persona, on_delete=CASCADE, verbose_name='Profesor')
@@ -147,15 +169,6 @@ class Profesor(models.Model):
 
     def __str__(self):
         return f"{self.persona}"
-
-class Resolucion(models.Model):
-    res_descripcion = CharField(max_length=100, verbose_name='Resolucion', null=False)
-    res_numero_resolucionm = CharField(max_length=100, verbose_name='Numero de Resolucion', null=False)
-    res_fecha_resolucion = DateField(verbose_name='Fecha de Resolucion', null=False)
-    res_fecha_registro = DateField(default=date.today, verbose_name='Fecha de Registro', null=False)
-
-    def __str__(self):
-        return f"{self.res_descripcion} {self.res_numero_resolucionm} {self.res_fecha_resolucion}"
 
 class Plan(models.Model):
     pln_descripcion = CharField(max_length=100, verbose_name='Nombre del Plan' , null=False)
@@ -172,9 +185,47 @@ class Asignatura(models.Model):
     def __str__(self):
         return f"{self.asi_descripcion}"
 
+class CargoProfesorCategoria (models.Model):
+    cpc_descripcion = CharField(max_length=100, verbose_name='Tipo de Cargo', null=False)
+    cpc_fecha_registro = DateField(default=date.today)
+
+    def __str__(self):
+        return f"{self.cpc_descripcion}"
+
+class CargoProfesor(models.Model):
+    cap_descripcion = CharField(max_length=100, verbose_name='Cargo', null=False)
+    cap_fecha_registro = DateField(default=date.today)
+
+    def __str__(self):
+        return f"{self.cap_descripcion}"
+
+class CargoProfesorDetalle (models.Model):
+    cargo_profesor = ForeignKey(CargoProfesor, on_delete=CASCADE, verbose_name='Cargo')
+    cargo_profesor_categoria = ForeignKey(CargoProfesorCategoria, on_delete=CASCADE, verbose_name='Tipo de Cargo')
+
+    def __str__(self):
+        return f"{self.cargo_profesor} {self.cargo_profesor_categoria}"
+
 class PeriodoLectivo(models.Model):
     per_descripcion = CharField(max_length=100, verbose_name='Nombre del Periodo Lectivo', null=False)
     per_fecha_registro = DateField(default=date.today, verbose_name='Fecha de Registro', null=False)
 
     def __str__(self):
         return f"{self.per_descripcion}"
+    
+class Nombramiento(models.Model):
+    periodo_lectivo = ForeignKey(PeriodoLectivo, on_delete=CASCADE, verbose_name='Periodo Lectivo')
+    sede_filial = ForeignKey(DetalleSedeFilial, on_delete=CASCADE, verbose_name='Sede Filial y Carrera')
+    nom_descripcion = CharField(max_length=100, verbose_name='Resolucion', null=False)
+    nom_numero_resolucion = CharField(max_length=100, verbose_name='Numero de Resolucion', null=False)
+    nom_fecha_resolucion = DateField(verbose_name='Fecha de Resolucion', null=False)
+    nom_fecha_registro = DateField(default=date.today, verbose_name='Fecha de Registro', null=False)
+
+    def __str__(self):
+        return f"{self.nom_descripcion} {self.nom_numero_resolucion} {self.nom_fecha_resolucion}"
+
+class NombramientoDetalle(models.Model):
+    profesor = ForeignKey(Profesor, on_delete=CASCADE, verbose_name='Profesor')
+    asignatura = ForeignKey(Asignatura, on_delete=CASCADE, verbose_name='Asignatura')
+    cargo = ForeignKey(CargoProfesorDetalle, on_delete=CASCADE, verbose_name='Cargo')
+    nombramiento = ForeignKey(Nombramiento, on_delete=CASCADE, verbose_name='Nombramiento')
