@@ -2,7 +2,7 @@ from datetime import date
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
-from django.utils import timezone
+#from django.utils import timezone
 from django.db.models import (
     IntegerField, CharField, DateField, CASCADE, OneToOneField, BooleanField, ForeignKey, FileField
 )
@@ -180,14 +180,14 @@ class TipoDocumentoDetalle(models.Model):
     tipoDocumento = ForeignKey(TipoDocumento, on_delete=CASCADE)
     legajoAlumno = ForeignKey(LegajoAlumno, on_delete=CASCADE)
     tip_documento = CharField(choices=DOC_CHOICES, verbose_name='Tipo de Documento', max_length=100)
-    tip_vencimiento = DateField(verbose_name='Vencimiento', blank=True, null=True)
-    tip_imagen = FileField(verbose_name='Imagen', null=True)
+    tip_vencimiento = CharField(verbose_name='Vencimiento', blank=True, null=True, max_length=10)
+    tip_imagen = FileField(verbose_name='Imagen')
 
     #aqui se hace una validacion para que no guarde si una cedula esta vencida
-    def save(self, *arg, **kwargs):
-        if self.tip_vencimiento > timezone.now().date():
-            return
-        super().save(self, *arg, **kwargs)
+    #def save(self, *arg, **kwargs):
+        #if self.tip_vencimiento > timezone.now().date():
+           # return
+        #super().save(self, *arg, **kwargs)
 
 class Profesor(models.Model):
     persona = OneToOneField(Persona, on_delete=CASCADE, verbose_name='Profesor')
@@ -266,7 +266,7 @@ class Nombramiento(models.Model):
     nom_fecha_registro = DateField(default=date.today, verbose_name='Fecha de Registro', null=False)
 
     def __str__(self):
-        return f"{self.nom_descripcion} {self.nom_numero_resolucion} {self.nom_fecha_resolucion}"
+        return f"{self.nom_descripcion} {self.nom_numero_resolucion} {self.nom_fecha_resolucion}, Sede: {self.sede_filial.sedefilial.sed_descripcion}"
     
     class Meta:
         verbose_name_plural = "Nombramiento"

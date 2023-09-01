@@ -16,7 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+from legasys_app import views
 
 urlpatterns = [
-    path('admin/', admin.site.urls), # admin site
+    path('admin/', admin.site.urls),
+    path('generar_constancia/', views.generar_constancia, name='generar_constancia'),
+    path('generar_nombramiento/', views.generar_nombramiento, name='generar_nombramiento'),
+    path('generate_pdf/', views.generate_pdf, name='generate_pdf'),
+    path('generate_pdf/<int:student_id>/', views.generate_pdf, name='generate_pdf_with_id'),
+    
+    path('generate_pdf2/', views.generate_pdf2, name='generate_pdf2'),
+    path('generate_pdf2/<int:sede_filial_id>/', views.generate_pdf2, name='generate_pdf2_by_sede'),
+    path('generate_pdf2/<int:sede_filial_id>/<str:nom_numero_resolucion>/', views.generate_pdf2, name='generate_pdf2_by_sede_and_resolucion'),
+
+    # ... Other URL patterns ...
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

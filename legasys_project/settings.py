@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'legasys_app',
+    #'image',
 ]
 
 
@@ -80,9 +81,17 @@ WSGI_APPLICATION = 'legasys_project.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    #'default': {
+        #'ENGINE': 'django.db.backends.sqlite3',
+        #'NAME': BASE_DIR / 'db.sqlite3',
+    #}
+     'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'legasys',
+        'USER': 'root',
+        'PASSWORD': '0000',
+        'HOST': 'localhost',  # or the hostname where your MySQL server is running
+        'PORT': '3306',      # or the port on which your MySQL server is listening
     }
 }
 
@@ -145,10 +154,23 @@ JAZZMIN_SETTINGS = {
     "topmenu_links": [
 
         # Url that gets reversed (Permissions can be added)
-        {"name": "Inicio",  "url": "admin:index", "permissions": ["auth.view_user"]},
+        #{"name": "Inicio",  "url": "admin:index", "permissions": ["auth.view_user"]},
 
         # model admin to link to (Permissions checked against model)
-        {"model": "auth.User"},
+        #{"model": "auth.User"},
+
+        {
+            "name": "Constancia",
+            "url": "/generate_pdf/",  # URL to your custom view
+            "icon": "fas fa-file",   # Icon class
+            "permissions": ["auth.view_user"],  # Optional permissions
+        },
+        {
+            "name": "Nombramiento",
+            "url": "/generar_nombramiento/",  # URL to your custom view
+            "icon": "fas fa-file",   # Icon class
+            "permissions": ["auth.view_user"],  # Optional permissions
+        },
     ],
     
     "icons": {
