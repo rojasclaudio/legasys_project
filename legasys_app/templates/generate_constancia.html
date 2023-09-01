@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <title>Generar Constancia</title>
+  <style>
+    /* Custom styles for buttons */
+    .custom-btn {
+      background-color: #28a745; 
+      color: white; 
+      border-radius: 5px; 
+      transition: background-color 0.3s ease-in-out; 
+    }
+
+    .custom-btn:hover {
+      background-color: #218838; 
+    }
+
+    .return-btn {
+      background-color: #17a2b8; 
+      color: white; 
+      border-radius: 5px; 
+      transition: background-color 0.3s ease-in-out; 
+    }
+
+    .return-btn:hover {
+      background-color: #138496; 
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h4>Generar Constancia</h4>
+    <form class="col s12" method="POST" action="{% url 'generate_pdf' %}">
+      {% csrf_token %}
+      <div class="input-field col s12">
+        <select id="name" name="student_id" class="materialize-select">
+          <option value="" disabled selected>Seleccione un alumno</option>
+          {% for student in students %}
+            <option value="{{ student.id }}" data-doc="{{ student.per_cedula }}">{{ student.persona.first_name }} {{ student.persona.last_name }}</option>
+          {% endfor %}
+        </select>
+        <label for="name">Alumno</label>
+      </div>
+      <!-- Removed the document dropdown as it was redundant with the student dropdown -->
+      <div class="input-field col s12">
+        <select id="teacher" name="funcionario_id" class="materialize-select">
+          <option value="" disabled selected>Seleccione un funcionario</option>
+          {% for funcionario in funcionarios %}
+            <option value="{{ funcionario.id }}">{{ funcionario.persona.first_name }} {{ funcionario.persona.last_name }}</option>
+          {% endfor %}
+        </select>
+        <label for="teacher">Firmante</label>
+      </div>
+      <div class="col s12">
+        <button class="btn custom-btn waves-effect waves-light" type="submit">Generar</button>
+        <button class="btn return-btn waves-effect waves-light" type="button" onclick="returnToAdminPage()">Volver al Inicio</button>
+      </div>
+    </form>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script>
+    function returnToAdminPage() {
+      window.location.href = "{% url 'admin:index' %}";
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var selectElems = document.querySelectorAll('.materialize-select');
+      M.FormSelect.init(selectElems, {});
+    });
+  </script>
+</body>
+</html>
