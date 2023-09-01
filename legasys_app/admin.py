@@ -203,7 +203,7 @@ admin.site.register(Cargo, CargoAdmin)
 admin.site.register(Funcionario, FuncionarioAdmin)
 admin.site.register(Alumno, AlumnoAdmin)
 admin.site.register(TipoDocumento, TipoDocumentoAdmin)
-#admin.site.register(TipoDocumentoDetalle, TipoDocumentoDetalleAdmin)
+admin.site.register(TipoDocumentoDetalle, TipoDocumentoDetalleAdmin)
 admin.site.register(LegajoAlumno, LegajoAlumnoAdmin)
 
 #PARTE PROFESOR

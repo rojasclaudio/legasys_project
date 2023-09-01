@@ -54,7 +54,7 @@ class BaseUser(AbstractBaseUser, PermissionsMixin):
         return self.username
 
 class Persona(BaseUser):
-    per_cedula = IntegerField(verbose_name='Cédula', null=False)
+    per_cedula = IntegerField(verbose_name='Cédula', null=False, unique=True)
     per_fecha_nacimiento = DateField(verbose_name='Fecha de nac.', null=False)
     per_telefono = IntegerField(verbose_name='Teléfono')
     per_fecha_registro = DateField(default=date.today, verbose_name='Fecha de registro')
@@ -69,6 +69,9 @@ class Facultad (models.Model):
 
     def __str__(self):
         return f"{self.fac_descripcion}"
+    
+    class Meta:
+        verbose_name_plural = "Facultad"
 
 class Carrera (models.Model):
     facultad = ForeignKey(Facultad, on_delete=CASCADE, verbose_name='Facultad')
@@ -77,6 +80,9 @@ class Carrera (models.Model):
 
     def __str__(self):
         return f"{self.crr_descripcion}"
+    
+    class Meta:
+        verbose_name_plural = "Carrera"
 
 class SedeFilial (models.Model):
     sed_descripcion = CharField(max_length=100, verbose_name='Nombre de Sede Filial')
@@ -84,6 +90,8 @@ class SedeFilial (models.Model):
 
     def __str__(self):
         return f"{self.sed_descripcion}"
+    class Meta:
+        verbose_name_plural = "Sede Filial"
 
 #No puse las columnas nativas dentro de este modelo porque es una tabla detalle que sirve para hacer mucho a mucho
 class DetalleSedeFilial(models.Model):
@@ -91,7 +99,7 @@ class DetalleSedeFilial(models.Model):
     sedefilial = ForeignKey(SedeFilial, on_delete=CASCADE, verbose_name='Sede Filial')
 
     def __str__(self):
-        return f"{self.sedefilial} {self.carrera}"
+        return f"{self.sedefilial}, {self.carrera}"
 
 class Alumno(models.Model):
     persona = OneToOneField(Persona, on_delete=CASCADE, verbose_name='Alumno/a')
@@ -100,13 +108,19 @@ class Alumno(models.Model):
 
     def __str__(self):
         return f"{self.persona}"
+    
+    class Meta:
+        verbose_name_plural = "Alumno"
 
 class Cargo(models.Model):
-    car_descripcion = CharField(max_length=100, verbose_name='Nombre del Cargo')
+    car_descripcion = CharField(max_length=100, verbose_name='Cargo del Funcionario')
     car_fecha_registro = DateField(default=date.today)
 
     def __str__(self):
         return f"{self.car_descripcion}"
+    
+    class Meta:
+        verbose_name_plural = "Cargo del Funcionario"
 
 class Funcionario(models.Model):
     persona = OneToOneField(Persona, on_delete=CASCADE, verbose_name='Funcionario')
@@ -116,6 +130,9 @@ class Funcionario(models.Model):
 
     def __str__(self):
         return f"{self.persona}"
+    
+    class Meta:
+        verbose_name_plural = "Funcionario"
 
 
 class LegajoAlumno(models.Model):
@@ -131,7 +148,13 @@ class LegajoAlumno(models.Model):
     #leg_ruta = CharField(max_length=500)
     #leg_vencimiento = DateField(verbose_name='Vencimiento')
 
-    leg_fecha_registro = DateField(verbose_name='Fecha de registro', null=False)
+    leg_fecha_registro = DateField(default=date.today, verbose_name='Fecha de registro', null=False)
+
+    def __str__(self):
+        return f"{self.alumno}"
+    
+    class Meta:
+        verbose_name_plural = "Legajo de Alumno"
 
 #El foreingkey va dentro de la tabla donde se guarda la lista
 class TipoDocumento(models.Model):
@@ -145,6 +168,9 @@ class TipoDocumento(models.Model):
 
     def __str__(self):
         return f"{self.doc_descripcion}"
+    
+    class Meta:
+        verbose_name_plural = "Tipo de Documento"
 
 class TipoDocumentoDetalle(models.Model):
     DOC_CHOICES = (('Copia', 'Copia'),
@@ -169,6 +195,9 @@ class Profesor(models.Model):
 
     def __str__(self):
         return f"{self.persona}"
+    
+    class Meta:
+        verbose_name_plural = "Profesor"
 
 class Plan(models.Model):
     pln_descripcion = CharField(max_length=100, verbose_name='Nombre del Plan' , null=False)
@@ -176,6 +205,9 @@ class Plan(models.Model):
 
     def __str__(self):
         return f"{self.pln_descripcion}"
+    
+    class Meta:
+        verbose_name_plural = "Plan"
 
 class Asignatura(models.Model):
     plan = ForeignKey(Plan, on_delete=CASCADE, verbose_name='Plan')
@@ -184,6 +216,9 @@ class Asignatura(models.Model):
 
     def __str__(self):
         return f"{self.asi_descripcion}"
+    
+    class Meta:
+        verbose_name_plural = "Asignatura"
 
 class CargoProfesorCategoria (models.Model):
     cpc_descripcion = CharField(max_length=100, verbose_name='Tipo de Cargo', null=False)
@@ -191,6 +226,9 @@ class CargoProfesorCategoria (models.Model):
 
     def __str__(self):
         return f"{self.cpc_descripcion}"
+    
+    class Meta:
+        verbose_name_plural = "Categoria del Cargo Profesor"
 
 class CargoProfesor(models.Model):
     cap_descripcion = CharField(max_length=100, verbose_name='Cargo', null=False)
@@ -198,13 +236,16 @@ class CargoProfesor(models.Model):
 
     def __str__(self):
         return f"{self.cap_descripcion}"
+    
+    class Meta:
+        verbose_name_plural = "Cargo del Profesor"
 
 class CargoProfesorDetalle (models.Model):
     cargo_profesor = ForeignKey(CargoProfesor, on_delete=CASCADE, verbose_name='Cargo')
     cargo_profesor_categoria = ForeignKey(CargoProfesorCategoria, on_delete=CASCADE, verbose_name='Tipo de Cargo')
 
     def __str__(self):
-        return f"{self.cargo_profesor} {self.cargo_profesor_categoria}"
+        return f"{self.cargo_profesor}, {self.cargo_profesor_categoria}"
 
 class PeriodoLectivo(models.Model):
     per_descripcion = CharField(max_length=100, verbose_name='Nombre del Periodo Lectivo', null=False)
@@ -212,6 +253,9 @@ class PeriodoLectivo(models.Model):
 
     def __str__(self):
         return f"{self.per_descripcion}"
+    
+    class Meta:
+        verbose_name_plural = "Periodo Lectivo"
     
 class Nombramiento(models.Model):
     periodo_lectivo = ForeignKey(PeriodoLectivo, on_delete=CASCADE, verbose_name='Periodo Lectivo')
@@ -223,6 +267,9 @@ class Nombramiento(models.Model):
 
     def __str__(self):
         return f"{self.nom_descripcion} {self.nom_numero_resolucion} {self.nom_fecha_resolucion}"
+    
+    class Meta:
+        verbose_name_plural = "Nombramiento"
 
 class NombramientoDetalle(models.Model):
     profesor = ForeignKey(Profesor, on_delete=CASCADE, verbose_name='Profesor')
