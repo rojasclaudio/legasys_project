@@ -16,7 +16,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.pagesizes import A4, landscape, letter, legal
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, PageTemplate, BaseDocTemplate, Image, KeepTogether
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, BaseDocTemplate, Image, KeepTogether, PageBreak, PageTemplate, Frame
 from reportlab.lib.units import cm, inch
 from reportlab.pdfgen.canvas import Canvas
 
@@ -150,6 +150,10 @@ def generate_pdf(request):
     }
     return render(request, 'generate_constancia.html', context)
 #.............................................................................................................................
+
+
+
+
 def generate_pdf2(request):
     sede_filial_id = request.GET.get('sede_filial_id')
     nom_numero_resolucion = request.GET.get('nom_numero_resolucion')
@@ -163,7 +167,11 @@ def generate_pdf2(request):
         response,
         pagesize=A4,
     )
-    
+    image_path = os.path.join(settings.STATICFILES_DIRS[0], 'img', 'logoUnican.png')
+    logo = Image(image_path)  # Adjust width and height as necessary
+
+    right_image_path = os.path.join(settings.STATICFILES_DIRS[0], 'img', 'logoFacitec.png')
+    right_logo = Image(right_image_path)  # Adjust width and height as necessary
 
     # Set up styles and add paragraph to elements
     styles = getSampleStyleSheet()
@@ -234,10 +242,29 @@ def generate_pdf2(request):
     centered_paragraph = Paragraph(texto_final, final_estilo)
     elements.append(centered_paragraph)
 
+
+    centered_text = "UNIVERSIDAD NACIONAL DE CANINDEYÚ <br/> Creada por Ley de la Nación Nº 3.985/10 <br/><br/> Consejo Superior Universitario"
+    centered_style = getSampleStyleSheet()['Normal']
+    centered_style.fontName = "Times-Roman"
+    centered_style.fontSize = 12
+    centered_style.alignment = 1  
+    centered_paragraph = Paragraph(centered_text, centered_style)
+
+    table_data = [[logo, centered_paragraph, right_logo]]
+    header_table = Table(table_data, colWidths=[1*inch, 4*inch, 1*inch])
+    header_table.setStyle([('ALIGN', (0, 0), (-1, -1), 'CENTER'), 
+                            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')])
+
+    # Inserting the header_table at the beginning of the elements list
+    elements.insert(0, header_table)
+    elements.insert(1, Spacer(1, 50))
+
     # Generate PDF
     p.build(elements)
 
     return response
+
+
 
 def initialize_pdf_response():
     response = HttpResponse(content_type='application/pdf')
