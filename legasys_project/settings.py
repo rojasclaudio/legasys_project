@@ -146,11 +146,15 @@ AUTH_USER_MODEL = 'legasys_app.BaseUser'
 
 JAZZMIN_SETTINGS = {
     "changeform_format_overrides": {"legasys_app.legajoalumno": "single", "legasys_app.nombramiento": "single"},
-    "show_ui_builder": True,
+    #"show_ui_builder": True,
     #"related_modal_active": True,
     "site_title": "FACITEC by LEGASYS",
     "site_header": "FACITEC",
     "site_brand": "FACITEC",
+    "site_logo": "img/logoFacitec.png",
+    "welcome_sign": "Bienvenido/a a LEGASYS by: FACITEC",
+    "user_avatar": None,
+
     "topmenu_links": [
 
         # Url that gets reversed (Permissions can be added)
