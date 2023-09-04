@@ -144,6 +144,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'legasys_app.BaseUser'
 
+LOGIN_REDIRECT_URL = 'admin/'
+
 JAZZMIN_SETTINGS = {
     "changeform_format_overrides": {"legasys_app.legajoalumno": "single", "legasys_app.nombramiento": "single"},
     #"show_ui_builder": True,

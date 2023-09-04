@@ -19,6 +19,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from legasys_app import views
+from django.contrib.auth.views import LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,6 +32,7 @@ urlpatterns = [
     path('generate_pdf2/<int:sede_filial_id>/', views.generate_pdf2, name='generate_pdf2_by_sede'),
     path('generate_pdf2/<int:sede_filial_id>/<str:nom_numero_resolucion>/', views.generate_pdf2, name='generate_pdf2_by_sede_and_resolucion'),
 
+    path('home/', views.home_view, name='home'),
     # ... Other URL patterns ...
 ]
 

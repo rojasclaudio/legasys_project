@@ -3,7 +3,7 @@ import os
 from itertools import groupby
 from tkinter import Frame
 
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.http import FileResponse
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404  # Add this import
@@ -11,6 +11,8 @@ from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
 from django.templatetags.static import static
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.forms import AuthenticationForm  
 
 from reportlab.pdfgen import canvas
 from reportlab.lib import colors
@@ -32,7 +34,10 @@ def generar_constancia(request):
 
 def generar_nombramiento(request):
     return render (request, 'generar_nombramiento.html')
-    
+
+def home_view(request):
+    return render(request, 'home.html')
+
 
 #...............................................................................................................................
 def generate_pdf(request):
